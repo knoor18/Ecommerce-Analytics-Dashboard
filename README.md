@@ -26,6 +26,17 @@ The dashboard helps understand:
 - Dark Premium UI
 - Graphs & Charts using Plotly
 
+## Dashboard Preview
+
+### Login Page
+![Login](screenshots/login.png)
+
+### KPI Dashboard
+![KPI](screenshots/KPI.png)
+
+### Charts Section
+![Charts](screenshots/charts.png)
+
 ## 🛠 Technologies Used
 
 - Python
