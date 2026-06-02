@@ -45,6 +45,15 @@ The dashboard helps understand:
 - Plotly
 - Matplotlib
 
+## Backend Features
+
+- User Authentication
+- Role-Based Access Control
+- Session Management
+- Activity Logging
+- CSV Data Storage
+- Report Download Functionality
+
 ## ▶️ Run Project
 
 Install dependencies:

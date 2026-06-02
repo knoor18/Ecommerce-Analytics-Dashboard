@@ -2,28 +2,56 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-import streamlit as st
+from auth import authenticate
+from logger import save_log
+from backend import *
 
-# ---------- LOGIN SYSTEM ----------
+# Initialize session state
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "role" not in st.session_state:
+    st.session_state.role = None
+
 # ---------- LOGIN SYSTEM ----------
 
 def login():
+
     st.title("🔐 E-Commerce Dashboard Login")
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        if username == "admin" and password == "1234":
+
+        success, role = authenticate(username, password)
+
+        if success:
+
             st.session_state.logged_in = True
+            st.session_state.username = username
+            st.session_state.role = role
+
+            save_log(username, "Login")
+
             st.success("Login Successful ✅")
             st.rerun()
+
         else:
             st.error("Invalid Username or Password")
-
 # Session state
+if "username" not in st.session_state:
+    st.session_state.username = ""
+
+if "role" not in st.session_state:
+    st.session_state.role = ""
+
+# Initialize session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+
+if "role" not in st.session_state:
+    st.session_state.role = None    
 
 # Show login page if not logged in
 if not st.session_state.logged_in:
@@ -53,11 +81,14 @@ st.title("🛒 E-Commerce Sales Analytics Dashboard")
 
 # Logout Button
 if st.button("🚪 Logout"):
+
+    save_log(st.session_state.username,"Logout")
+
     st.session_state.logged_in = False
     st.rerun()
 
 # Load Data
-df = pd.read_csv("sales_data.csv")
+df = load_data()
 
 # Sidebar Filters
 st.sidebar.header("🔍 Filters")
@@ -81,15 +112,15 @@ filtered_df = df[
 ]
 
 # KPIs
-total_sales = int(filtered_df["Sales"].sum())
-total_profit = int(filtered_df["Profit"].sum())
-total_orders = filtered_df["OrderID"].count()
+total_sales_value = total_sales(filtered_df)
+total_profit_value = total_profit(filtered_df)
+total_orders_value = total_orders(filtered_df)
 
 col1, col2, col3 = st.columns(3)
 
-col1.metric("💰 Total Sales", f"{total_sales}")
-col2.metric("📈 Total Profit", f"{total_profit}")
-col3.metric("📦 Total Orders", f"{total_orders}")
+col1.metric("💰 Total Sales", total_sales_value)
+col2.metric("📈 Total Profit", total_profit_value)
+col3.metric("📦 Total Orders", total_orders_value)
 
 # Sales Trend
 st.subheader("📊 Monthly Sales Trend")
@@ -128,3 +159,24 @@ st.dataframe(customers)
 # Full Data
 st.subheader("📂 Full Dataset")
 st.dataframe(filtered_df)
+
+st.subheader("📥 Download Reports")
+
+csv = filtered_df.to_csv(index=False)
+
+st.download_button(
+    label="Download Sales Report",
+    data=csv,
+    file_name="sales_report.csv",
+    mime="text/csv"
+)
+
+if st.session_state.role == "admin":
+
+    st.subheader("🛠 Admin Panel")
+
+    logs = pd.read_csv("logs.csv")
+
+    st.write("User Activity Logs")
+
+    st.dataframe(logs)
