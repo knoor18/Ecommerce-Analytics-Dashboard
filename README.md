@@ -60,3 +60,8 @@ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+
+## Live Demo
+
+🚀 Streamlit App:
+https://ecommerce-analytics-dashboard-hqjlszg9aabqyyqkmckmcq.streamlit.app/
