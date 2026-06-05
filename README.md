@@ -47,12 +47,12 @@ The dashboard helps understand:
 
 ## Backend Features
 
+- SQLite Database Integration
 - User Authentication
 - Role-Based Access Control
-- Session Management
 - Activity Logging
-- CSV Data Storage
-- Report Download Functionality
+- Data Processing using Pandas
+- Report Generation
 
 ## ▶️ Run Project
 

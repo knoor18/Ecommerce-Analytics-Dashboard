@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from auth import authenticate
+from database import authenticate
 from logger import save_log
 from backend import *
 
@@ -27,18 +27,17 @@ def login():
         success, role = authenticate(username, password)
 
         if success:
-
             st.session_state.logged_in = True
-            st.session_state.username = username
             st.session_state.role = role
 
             save_log(username, "Login")
 
-            st.success("Login Successful ✅")
+            st.success("Login Successful")
             st.rerun()
 
         else:
             st.error("Invalid Username or Password")
+
 # Session state
 if "username" not in st.session_state:
     st.session_state.username = ""
