@@ -2,29 +2,84 @@
 
 A professional data analytics dashboard built using Python and Streamlit.
 
-## 📌 Project Overview
+📌 Project Overview
 
-This project analyzes e-commerce sales data and provides interactive visualizations for business insights.
+The E-Commerce Sales Analytics Dashboard is designed to transform raw sales data into meaningful business insights.
 
-The dashboard helps understand:
+The dashboard enables users to:
 
-- Total Sales
-- Profit Analysis
-- Customer Insights
-- Region-wise Performance
-- Category-wise Trends
-- Monthly Growth
+Monitor total sales and profit
+Analyze monthly sales trends
+Evaluate region-wise performance
+Track category-wise sales
+Identify top-performing products
+Analyze customer purchasing behavior
+Generate downloadable reports
 
 ## 🚀 Features
 
-- Interactive Dashboard
-- Login System
-- KPI Cards
-- Sales Trend Analysis
-- Category & Region Filters
-- Customer Insights
-- Dark Premium UI
-- Graphs & Charts using Plotly
+#Dashboard Features
+
+-Interactive Dashboard
+-KPI Cards
+-Monthly Sales Trend Analysis
+-Category-wise Sales Analysis
+-Region-wise Sales Analysis
+-Top Products Analysis
+-Customer Insights
+-Data Filtering
+-Download Reports
+
+#Backend Features
+
+-SQLite Database Integration
+-User Authentication System
+-Role-Based Access Control
+-Activity Logging
+-Data Processing using Pandas
+-Secure Login & Logout System
+
+#UI Features
+
+-Responsive Streamlit Interface
+-Professional Dashboard Layout
+-Interactive Plotly Charts
+-User-Friendly Navigation
+
+🏗 Project Architecture
+
+#Frontend
+.Streamlit
+.Plotly Express
+.Interactive Dashboard Components
+
+#Backend
+.Python
+.Authentication Module
+.Database Operations
+.Activity Logging
+.Data Processing Logic
+
+#Database
+.SQLite Database
+.Users Table
+.Logs Table
+
+##Architecture Flow
+
+User
+↓
+Login Page
+↓
+Authentication System
+↓
+SQLite Database
+↓
+Dashboard Processing
+↓
+Analytics & Visualizations
+↓
+Report Generation
 
 ## Dashboard Preview
 
@@ -39,11 +94,24 @@ The dashboard helps understand:
 
 ## 🛠 Technologies Used
 
-- Python
-- Streamlit
-- Pandas
-- Plotly
-- Matplotlib
+Programming Language
+-Python
+
+Framework
+-Streamlit
+
+Data Analysis
+-Pandas
+
+Visualization
+-Plotly Express
+
+Database
+-SQLite
+
+Version Control
+-Git
+-GitHub
 
 ## Backend Features
 
