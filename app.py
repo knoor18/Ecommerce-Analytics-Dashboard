@@ -1,6 +1,13 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import sqlite3
+from io import BytesIO
+
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from datetime import datetime
+from reportlab.lib.styles import getSampleStyleSheet
 
 import init_db
 import insert_users
@@ -15,6 +22,126 @@ if "logged_in" not in st.session_state:
 
 if "role" not in st.session_state:
     st.session_state.role = None
+
+def generate_pdf(total_sales, total_profit, total_orders):
+
+    pdf = SimpleDocTemplate("sales_report.pdf")
+
+    styles = getSampleStyleSheet()
+
+    elements = []
+
+    # Title
+    elements.append(
+        Paragraph(
+            "E-Commerce Sales Analytics Dashboard Report",
+            styles["Title"]
+        )
+    )
+
+    elements.append(Spacer(1, 20))
+
+    # Date
+    elements.append(
+        Paragraph(
+            f"Generated On: {datetime.now().strftime('%d-%m-%Y %H:%M')}",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(Spacer(1, 12))
+
+    # Executive Summary
+    elements.append(
+        Paragraph(
+            "Executive Summary",
+            styles["Heading2"]
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "This report provides an overview of sales performance, profit analysis, "
+            "and order statistics generated from the E-Commerce Analytics Dashboard.",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(Spacer(1, 15))
+
+    # Dashboard Highlights
+    elements.append(
+        Paragraph(
+            "Dashboard Highlights",
+            styles["Heading2"]
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "• Sales Performance Tracking<br/>"
+            "• Profit Analysis<br/>"
+            "• Order Monitoring<br/>"
+            "• Customer Insights<br/>"
+            "• Region-wise Analysis",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(Spacer(1, 15))
+
+    # KPI Table
+    data = [
+        ["Metric", "Value"],
+        ["Total Sales", f"₹ {total_sales:,.2f}"],
+        ["Total Profit", f"₹ {total_profit:,.2f}"],
+        ["Total Orders", str(total_orders)]
+    ]
+
+    table = Table(data, colWidths=[220, 180])
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
+    ]))
+
+    elements.append(table)
+
+    elements.append(Spacer(1, 20))
+
+    # Conclusion
+    elements.append(
+        Paragraph(
+            "Conclusion",
+            styles["Heading2"]
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "The dashboard helps businesses analyze sales trends, monitor profits, "
+            "and track order activity. These insights support better decision-making "
+            "and business growth.",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(Spacer(1, 20))
+
+    # Footer
+    elements.append(
+        Paragraph(
+            "Generated using E-Commerce Sales Analytics Dashboard",
+            styles["Italic"]
+        )
+    )
+
+    pdf.build(elements)
+
+    return "sales_report.pdf"
 
 # ---------- LOGIN SYSTEM ----------
 
@@ -32,6 +159,7 @@ def login():
         if success:
             st.session_state.logged_in = True
             st.session_state.role = role
+            st.session_state.username = username
 
             save_log(username, "Login")
 
@@ -173,12 +301,98 @@ st.download_button(
     mime="text/csv"
 )
 
+st.write("Sales:", total_sales_value)
+st.write("Profit:", total_profit_value)
+st.write("Orders:", total_orders_value)
+
+pdf_file = generate_pdf(
+    total_sales_value,
+    total_profit_value,
+    total_orders_value
+)
+
+
+with open(pdf_file, "rb") as f:
+    st.download_button(
+        label="Download PDF Report",
+        data=f,
+        file_name="sales_report.pdf",
+        mime="application/pdf"
+    )
+
 if st.session_state.role == "admin":
 
     st.subheader("🛠 Admin Panel")
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(DISTINCT username) FROM Users")
+    total_users = cursor.fetchone()[0]
+
+    conn.close()
+
+    st.metric("👥 Total Users", total_users)
+
+    st.subheader("➕ Add New User")
+
+    new_username = st.text_input("New Username")
+    new_password = st.text_input("New Password", type="password")
+    new_role = st.selectbox("Role", ["user", "admin"])
+
+    if st.button("Create User"):
+
+        if new_username.strip() == "":
+            st.error("Username cannot be empty")
+
+    elif len(new_password) < 6:
+        st.error("Password must be at least 6 characters")
+
+    else:
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM Users WHERE username=?",
+            (new_username,)
+        )
+
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            st.error("Username already exists")
+
+        else:
+            cursor.execute(
+                "INSERT INTO Users (username, password, role) VALUES (?, ?, ?)",
+                (new_username, new_password, new_role)
+            )
+
+            conn.commit()
+            st.success("User Created Successfully ✅")
+
+        conn.close()
+
+    st.subheader("👥 Users Database")
+
+    conn = sqlite3.connect("database.db")
+
+    users_df = pd.read_sql_query(
+        "SELECT username, role FROM Users",
+        conn
+    )
+
+    st.dataframe(users_df)
+
+    conn.close()    
 
     logs = pd.read_csv("logs.csv")
 
     st.write("User Activity Logs")
 
+    logs = pd.read_csv("logs.csv")   # Read latest logs every time
     st.dataframe(logs)
+
+        
+
+    

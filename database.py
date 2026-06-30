@@ -1,11 +1,8 @@
 import sqlite3
 
-def get_connection():
-    return sqlite3.connect("database.db")
-
-# Verify Login
 def authenticate(username, password):
-    conn = get_connection()
+
+    conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
     cursor.execute(
@@ -13,10 +10,37 @@ def authenticate(username, password):
         (username, password)
     )
 
-    result = cursor.fetchone()
+    user = cursor.fetchone()
+
     conn.close()
 
-    if result:
-        return True, result[0]
+    if user:
+        return True, user[0]   # success, role
+    else:
+        return False, None
 
-    return False, None
+def create_user(username, password, role):
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM Users WHERE username=?",
+        (username,)
+    )
+
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        conn.close()
+        return False
+
+    cursor.execute(
+        "INSERT INTO Users(username,password,role) VALUES (?,?,?)",
+        (username, password, role)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return True

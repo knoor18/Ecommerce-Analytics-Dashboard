@@ -8,10 +8,17 @@ users = [
     ("noor", "1234", "user")
 ]
 
-cursor.executemany(
-    "INSERT INTO Users (username,password,role) VALUES (?,?,?)",
-    users
-)
+for user in users:
+    cursor.execute(
+        "SELECT * FROM Users WHERE username=?",
+        (user[0],)
+    )
+
+    if cursor.fetchone() is None:
+        cursor.execute(
+            "INSERT INTO Users (username,password,role) VALUES (?,?,?)",
+            user
+        )
 
 conn.commit()
 conn.close()
